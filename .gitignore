@@ -1,0 +1,15 @@
+!/src
+/src/*
+!/src/.htaccess
+!/data/media
+/data/media/*
+!/data/media/.htaccess
+!/data/mysql/db
+/data/mysql/db/*
+!/data/mysql/db/.htaccess
+!/data/mysql/setup
+/data/mysql/setup/*
+!/data/mysql/setup/.htaccess
+!/data/skin
+/data/skin/*
+!/data/skin/.htaccess

@@ -1,0 +1,73 @@
+version: '3'
+
+services:
+  app:
+    image: secomm/centos7-app:5.6
+    depends_on:
+      - database
+      - redis
+    links:
+      - database
+      - redis
+#    expose:
+#      - '80'
+    environment:
+      - VIRTUAL_HOST=magento1.secomm.vn
+      - LETSENCRYPT_HOST=magento1.secomm.vn
+      - LETSENCRYPT_EMAIL=phuocvu@builtwithdigital.com
+      - DB_HOST=database:3306
+      - DB_USER=secomm
+      - DB_PASSWORD=secomm
+    volumes: &appvolumes
+      - ./src:/var/www/html:delegated
+      - ./data/local.xml:/var/www/html/app/etc/local.xml
+      - ./data/media:/var/www/html/media:delegated
+      - ./data/skin:/var/www/html/skin:delegated
+      - ./conf/httpd.conf:/etc/httpd/conf/httpd.conf
+      - sockdata:/sock
+    container_name: 'test-app-magento1'
+
+  database:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: AsdfQwer
+      MYSQL_DATABASE: magento1
+      MYSQL_USER: secomm
+      MYSQL_PASSWORD: secomm
+    volumes:
+      - ./data/mysql/db:/var/lib/mysql
+      - ./data/mysql/setup:/docker-entrypoint-initdb.d
+    container_name: 'test-db-magento1'
+
+  redis:
+    image: redis:latest
+    expose:
+      - "6379"
+    container_name: 'redis'
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8580:80"
+    depends_on:
+      - database
+    links:
+      - database
+    volumes:
+      - /sessions
+    restart: always
+    environment:
+      PMA_ARBITRARY: 1
+      ROOT_PASSWORD: AsdfQwer
+      DB_USER: secomm
+      DB_PASSWORD: secomm
+    container_name: 'phpmyadmin'
+
+networks:
+  default:
+    external:
+      name: nginx-proxy-net
+
+volumes:
+  sockdata:
